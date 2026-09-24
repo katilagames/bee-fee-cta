@@ -14,6 +14,8 @@ export default class Game extends Container {
 
   private itemsContainer?: Container;
   private items: Item[] = [];
+  private spawnItemEveryMs = 1500;
+  private spawnTimeAccumulatorMs = 0;
 
   constructor(main: Main) {
     super();
@@ -45,13 +47,23 @@ export default class Game extends Container {
     this.createItem();
   }
   private createItem() {
-    const item = new Item(this);
-    item.x = this.screen.width/2;
-    item.y = 100;
-
-    this.items.push(item);
+    const item = this.getItem();
+    item.init();
+    item.x = item.width + (this.screen.width - item.width * 2) * Math.random();
+    item.y = -item.height;
     this.itemsContainer?.addChild(item);
   }
+  private getItem() {
+    let item = this.items.find((foundItem) => !foundItem.isActive);
+    if (!item) {
+      item = new Item(this);
+      this.items.push(item);
+    }
+
+    item.init();
+    return item;
+  }
+
   private createHero() {
     this.hero = new Hero(this);
     this.addChild(this.hero);
@@ -83,6 +95,26 @@ export default class Game extends Container {
     }
   }
 
+  private moveItems(delta: number) {
+    for (const item of this.items) {
+      if (!item.isActive) {
+        continue;
+      }
+
+      item.move(delta);
+    }
+  }
+
+  handleTick(delta: number) {
+    this.spawnTimeAccumulatorMs += delta;
+
+    while (this.spawnTimeAccumulatorMs >= this.spawnItemEveryMs) {
+      this.spawnTimeAccumulatorMs -= this.spawnItemEveryMs;
+      this.createItem();
+    }
+
+    this.moveItems(delta);
+  }
   destroy(options?: DestroyOptions): void {
     this.hero?.destroy(options);
     this.moveArrows?.destroy(options);

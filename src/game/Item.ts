@@ -12,24 +12,51 @@ const ITEMS_NAMES_TEXTURE_POS: Record<string,[number, number]> = {
 }
 export default class Item extends Container {
   private game: Game;
-  private sprite: Sprite;
+  private sprite?: Sprite;
 
   private itemTexture;
+
+  private speed: number = 100;
+  isActive: boolean = false;
 
   constructor(game: Game) {
     super();
     this.game = game;
-
     this.itemTexture = Assets.get('food');
+  }
 
-    // this.sprite = new Sprite(this.itemTexture);
-    // this.sprite = new Sprite(this.getItemTextureByName("cake"));
-    const randTexture = this.getItemTextureByRandom(false);
-    this.sprite = new Sprite(randTexture);
+  init(namedTexture?: string) {    
+    const texture = namedTexture 
+      ? this.getItemTextureByName(namedTexture) 
+      : this.getItemTextureByRandom(true);
+    
+    if (!texture) {
+      console.error("Item init missing texture");
+      return;
+    }
+
+    if (!this.sprite) {
+      this.sprite = new Sprite(texture);
+    } else {
+      this.sprite.texture = texture;
+    }
+
     this.sprite.anchor.set(0.5);
     this.sprite.scale.set(2);
     this.sprite.texture.source.scaleMode = 'nearest';
     this.addChild(this.sprite);
+
+    this.isActive = true;
+  }
+
+  move(delta: number) {
+    const distance = this.speed * delta / 1000;
+
+    this.y += distance;
+
+    if (this.y - this.height > this.game.screen.height) {
+      this.isActive = false;
+    }
   }
 
   private isPositionOnTheList(pos: { x: number, y: number }): boolean {
@@ -55,7 +82,7 @@ export default class Item extends Container {
     return possibleItemPositions;
   }
 
-  getItemTextureByRandom(excludeNamed: boolean = false) {
+  protected getItemTextureByRandom(excludeNamed: boolean = false) {
     const positions = this.getPossiblePositions(excludeNamed);
 
     if (positions.length === 0) {
@@ -72,7 +99,7 @@ export default class Item extends Container {
     return this.getItemTextureByPos(texturePosition.x, texturePosition.y);
   }
 
-  getItemTextureByName(name: string) {
+  protected getItemTextureByName(name: string) {
     const itemPos = ITEMS_NAMES_TEXTURE_POS[name];
     if (!itemPos){ 
       console.warn("missing item by name");
@@ -82,7 +109,7 @@ export default class Item extends Container {
     return this.getItemTextureByPos(col, row)
   }
 
-  getItemTextureByPos(col: number, row: number) {
+  protected getItemTextureByPos(col: number, row: number) {
     const posX = col * ITEM_GRAPHIC_SIZE;
     const posY = row * ITEM_GRAPHIC_SIZE;
 

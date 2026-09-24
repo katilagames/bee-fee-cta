@@ -52,6 +52,7 @@ export default class Main {
 
   private handleTicker(ticker: Ticker) {
     this.moveHandler?.handleTick(ticker.deltaMS);
+    this.game.handleTick(ticker.deltaMS);
   }
 
   private onMove(direction: MoveDirection, delta: number) {
