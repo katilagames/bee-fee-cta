@@ -16,6 +16,8 @@ export default class Hero extends Container{
   private defaultState = HeroState.idle;
   private state: HeroState = this.defaultState;
 
+  private speed = 250;
+
   constructor(game: Game) {
     super();
     this.game = game;
@@ -77,5 +79,19 @@ export default class Hero extends Container{
 
   setWalkRight() {
     this.setState(HeroState.walk_right);
+  }
+
+  moveLeft(delta: number) {
+    console.log(delta);
+    const distance = this.speed * delta / 1000;
+    this.x -= distance;
+
+    this.setWalkLeft();
+  }
+  moveRight(delta: number) {
+    const distance = this.speed * delta / 1000;
+    this.x += distance;
+
+    this.setWalkRight();
   }
 }

@@ -1,18 +1,25 @@
-import { Application } from "pixi.js";
+import { Application, Ticker } from "pixi.js";
 import Game from "./Game";
 import Preloader from "./Preloader";
 import manifest from "../assets/manifest.json";
+import MoveHandler, { MoveDirection } from "./MoveHandler";
 
 export default class Main {
   private pixiApp: Application;
   private game: Game;
   private preloader: Preloader;
+  private moveHandler: MoveHandler;
 
   constructor() {
     console.log('Main');
     this.pixiApp = new Application();
     this.game = new Game(this);
     this.preloader = new Preloader(manifest.assets);
+
+    this.handleTicker = this.handleTicker.bind(this);
+    this.onMove = this.onMove.bind(this);
+
+    this.moveHandler = new MoveHandler(this.onMove);
   }
 
   public get app() {
@@ -21,7 +28,7 @@ export default class Main {
 
   async init() {
     await this.pixiApp.init({
-      background: "red",
+      background: "grey",
       resizeTo: window,
     });
 
@@ -31,5 +38,15 @@ export default class Main {
 
     this.app.stage.addChild(this.game);
     await this.game.init();
+
+    this.app.ticker.add(this.handleTicker);
+  }
+
+  private handleTicker(ticker: Ticker) {
+    this.moveHandler?.handleTick(ticker.deltaMS);
+  }
+
+  private onMove(direction: MoveDirection, delta: number) {
+    this.game.onMove(direction, delta);
   }
 }
