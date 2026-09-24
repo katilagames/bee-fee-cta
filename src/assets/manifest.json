@@ -2,6 +2,7 @@
   "assets": [
     { "alias": "hero_spritesheet", "src": "./assets/hero/hero_spritesheet.json" },
     { "alias": "hero_static", "src": "./assets/hero/knight_static.png" },
-    { "alias": "food", "src": "./assets/food.png" }
+    { "alias": "food", "src": "./assets/food.png" },
+    { "alias": "arrow", "src": "./assets/arrow.png" }
   ]
 }

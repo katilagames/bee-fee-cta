@@ -1,4 +1,4 @@
-import { AnimatedSprite, Assets, Container, Spritesheet } from "pixi.js";
+import { AnimatedSprite, Assets, Container, DestroyOptions, Spritesheet } from "pixi.js";
 import Game from "./Game";
 
 export enum HeroState {
@@ -47,6 +47,7 @@ export default class Hero extends Container{
     this.heroSprite.play();
 
     this.addChild(this.heroSprite);
+    this.placeAtCenterBottom();
   }
 
   setState(state: HeroState) {    
@@ -81,17 +82,49 @@ export default class Hero extends Container{
     this.setState(HeroState.walk_right);
   }
 
-  moveLeft(delta: number) {
-    console.log(delta);
-    const distance = this.speed * delta / 1000;
-    this.x -= distance;
+  private getDistance(delta: number) {
+    return this.speed * delta / 1000;
+  }
 
+  moveLeft(delta: number) {
+    this.x -= this.getDistance(delta);
+
+    this.clampPositionToScreen();
     this.setWalkLeft();
   }
   moveRight(delta: number) {
-    const distance = this.speed * delta / 1000;
-    this.x += distance;
+    this.x += this.getDistance(delta);
 
+    this.clampPositionToScreen();
     this.setWalkRight();
+  }
+
+  private placeAtCenterBottom() {
+    const { width: screenWidth , height: screenHeight } = this.game.screen;
+
+    const bounds = this.getLocalBounds();
+    this.pivot.x = bounds.x + bounds.width / 2;
+    this.pivot.y = bounds.y + bounds.height;
+    this.x = Math.round(screenWidth / 2);
+    this.y = Math.round(screenHeight);
+  }
+
+  private clampPositionToScreen() {
+    const { width: screenWidth } = this.game.screen;
+    const bounds = this.getLocalBounds();
+    
+    const halfWidth = bounds.width / 2;
+
+    const minX = halfWidth;
+    const maxX = Math.max(halfWidth, screenWidth - halfWidth);
+
+    this.x = Math.round(Math.min(Math.max(this.x, minX), maxX));
+  }
+
+  destroy(options?: DestroyOptions): void {
+    this.heroSprite?.destroy();
+    this.heroSprite = undefined;
+    
+    super.destroy(options);
   }
 }

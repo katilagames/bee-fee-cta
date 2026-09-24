@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import MoveArrows from "./MoveArrows";
 
 export enum MoveDirection {
   LEFT = "left",
@@ -10,16 +10,10 @@ export enum MoveDirection {
 
 export type OnMoveCallback = (direction: MoveDirection, delta: number) => void;
 
-type ScreenArrows = {
-  left_mc?: Sprite;
-  right_mc?: Sprite;
-  up_mc?: Sprite;
-  down_mc?: Sprite;
-};
 
 export default class MoveHandler {
   private onMove?: OnMoveCallback;
-  private screenArrows?: ScreenArrows;
+  private screenArrows?: MoveArrows;
 
   private isLeftPressed = false;
   private isRightPressed = false;
@@ -44,9 +38,13 @@ export default class MoveHandler {
     window.addEventListener("blur", this.handleWindowBlur);
   }
 
-  addScreenArrows(screenArrows: ScreenArrows): void {
+  addScreenArrows(screenArrows: MoveArrows): void {
     this.screenArrows = screenArrows;
     this.addArrowEventListeners();
+  }
+
+  onStageUp() {
+    this.handleWindowBlur();
   }
 
   private addArrowEventListeners(): void {
@@ -55,28 +53,32 @@ export default class MoveHandler {
       return;
     }
 
-    const { left_mc, right_mc, up_mc, down_mc } = this.screenArrows;
+    const { left, right, up, down } = this.screenArrows;
 
-    if (left_mc) {
-      left_mc.addEventListener("mousedown", this.onClickLeft);
-      left_mc.addEventListener("pressup", this.onPressUpLeft);
-      left_mc.cursor = "pointer";
+    if (left) {
+      left.addEventListener("pointerdown", this.onClickLeft);
+      left.addEventListener("pointerup", this.onPressUpLeft);
+      left.cursor = "pointer";
+      left.eventMode = 'static';
     }
 
-    if (right_mc) {
-      right_mc.addEventListener("mousedown", this.onClickRight);
-      right_mc.addEventListener("pressup", this.onPressUpRight);
-      right_mc.cursor = "pointer";
+    if (right) {
+      right.addEventListener("pointerdown", this.onClickRight);
+      right.addEventListener("pointerup", this.onPressUpRight);
+      right.cursor = "pointer";
+      right.eventMode = 'static';
     }
 
-    if (up_mc) {
-      up_mc.addEventListener("mousedown", this.onClickUp);
-      up_mc.cursor = "pointer";
+    if (up) {
+      up.addEventListener("pointerdown", this.onClickUp);
+      up.cursor = "pointer";
+      up.eventMode = 'static';
     }
 
-    if (down_mc) {
-      down_mc.addEventListener("mousedown", this.onClickDown);
-      down_mc.cursor = "pointer";
+    if (down) {
+      down.addEventListener("pointerdown", this.onClickDown);
+      down.cursor = "pointer";
+      down.eventMode = 'static';
     }
   }
 
@@ -85,20 +87,20 @@ export default class MoveHandler {
       return;
     }
 
-    const { left_mc, right_mc, up_mc, down_mc } = this.screenArrows;
+    const { left, right, up, down } = this.screenArrows;
 
-    if (left_mc) {
-      left_mc.removeEventListener("mousedown", this.onClickLeft);
-      left_mc.removeEventListener("pressup", this.onPressUpLeft);
+    if (left) {
+      left.removeEventListener("pointerdown", this.onClickLeft);
+      left.removeEventListener("pointerup", this.onPressUpLeft);
     }
 
-    if (right_mc) {
-      right_mc.removeEventListener("mousedown", this.onClickRight);
-      right_mc.removeEventListener("pressup", this.onPressUpRight);
+    if (right) {
+      right.removeEventListener("pointerdown", this.onClickRight);
+      right.removeEventListener("pointerup", this.onPressUpRight);
     }
 
-    up_mc?.removeEventListener("mousedown", this.onClickUp);
-    down_mc?.removeEventListener("mousedown", this.onClickDown);
+    up?.removeEventListener("pointerdown", this.onClickUp);
+    down?.removeEventListener("pointerdown", this.onClickDown);
   }
 
   private onClickLeft(): void {

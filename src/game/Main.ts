@@ -17,6 +17,7 @@ export default class Main {
     this.preloader = new Preloader(manifest.assets);
 
     this.handleTicker = this.handleTicker.bind(this);
+    this.onStageUp = this.onStageUp.bind(this);
     this.onMove = this.onMove.bind(this);
 
     this.moveHandler = new MoveHandler(this.onMove);
@@ -26,6 +27,9 @@ export default class Main {
     return this.pixiApp;
   }
 
+  public getMoveHandler() {
+    return this.moveHandler;
+  }
   async init() {
     await this.pixiApp.init({
       background: "grey",
@@ -37,7 +41,11 @@ export default class Main {
     await this.preloader.load();
 
     this.app.stage.addChild(this.game);
-    await this.game.init();
+    this.app.stage.eventMode = 'static';
+
+    this.app.stage.addEventListener('pointerupoutside', this.onStageUp);
+
+    this.game.init();
 
     this.app.ticker.add(this.handleTicker);
   }
@@ -48,5 +56,9 @@ export default class Main {
 
   private onMove(direction: MoveDirection, delta: number) {
     this.game.onMove(direction, delta);
+  }
+
+  private onStageUp() {
+    this.moveHandler.onStageUp();
   }
 }
