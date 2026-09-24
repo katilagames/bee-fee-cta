@@ -1,4 +1,4 @@
-import { AnimatedSprite, Assets, Container, DestroyOptions, Spritesheet } from "pixi.js";
+import { AnimatedSprite, AnimatedSpriteFrames, Assets, Container, DestroyOptions, Spritesheet, Texture, TextureSource } from "pixi.js";
 import Game from "./Game";
 
 export enum HeroState {
@@ -10,7 +10,7 @@ export enum HeroState {
 export default class Hero extends Container{ 
   private game: Game;
   private heroSS: Spritesheet;
-  private animations: Record<string, any>;
+  private animations: Record<string, AnimatedSpriteFrames>;
 
   private heroSprite?: AnimatedSprite;
   private defaultState = HeroState.idle;
