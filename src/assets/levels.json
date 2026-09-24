@@ -7,9 +7,10 @@
       "spawnItemEveryMs": 1500
     },
     "hero": {
-      "speed": 250
+      "speed": 300
     },
-    "background": "bg1"
+    "background": "bg1",
+    "pointsToLevelUp": 30
   },
   "level2": {
     "items": {
@@ -19,9 +20,10 @@
       "spawnItemEveryMs": 1000
     },
     "hero": {
-      "speed": 300
+      "speed": 400
     },
-    "background": "bg2"
+    "background": "bg2",
+    "pointsToLevelUp": 30
   },
   "level3": {
     "items": {
@@ -31,8 +33,9 @@
       "spawnItemEveryMs": 800
     },
     "hero": {
-      "speed": 400
+      "speed": 500
     },
-    "background": "bg3"
+    "background": "bg3",
+    "pointsToLevelUp": 500
   }
 }

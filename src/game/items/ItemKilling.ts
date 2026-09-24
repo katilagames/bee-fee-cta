@@ -4,7 +4,7 @@ import Item, { ITEM_TYPES } from "./Item";
 export default class ItemKilling extends Item {
   constructor(game: Game) {
     super(game);
-    this.speed = 100;
+    this.speed = this.speed/2;
     this.type = ITEM_TYPES.killing;
   }
 

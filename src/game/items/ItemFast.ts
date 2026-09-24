@@ -4,7 +4,7 @@ import Item, { ITEM_TYPES } from "./Item";
 export default class ItemFast extends Item {
   constructor(game: Game) {
     super(game);
-    this.speed = 500;
+    this.speed *= 2;
     this.type = ITEM_TYPES.fast;
   }
 

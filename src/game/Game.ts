@@ -18,8 +18,11 @@ export default class Game extends Container {
 
   private isActive = false;
   private points: number;
+  private pointsSinceLastLevel: number = 0;
+  private pointsToLevelUp: number = Infinity;
   private lives: number;
   private level: number;
+  private maxLevels: number = 1;
   private levelSettings?: LevelSettings;
   private maxLivesToLose = 10;
 
@@ -51,6 +54,8 @@ export default class Game extends Container {
     this.levelSettings = this.levelsManager.getSettings(this.level);
     this.spawnItemEveryMs = this.levelSettings.items.spawnItemEveryMs;
     this.spawnNumberOfItems = this.levelSettings.items.maxAtOnce;
+    this.pointsToLevelUp = this.levelSettings.pointsToLevelUp;
+    this.maxLevels = this.levelsManager.getLevelsNum();
 
     this.createBackground();
     this.createItems();
@@ -185,6 +190,11 @@ export default class Game extends Container {
 
   public addPoints(points: number) {
     this.points += points;
+    console.log("points", this.points);
+    this.pointsSinceLastLevel += points;
+    if (this.pointsSinceLastLevel > this.pointsToLevelUp) {
+      this.levelUp();
+    }
   }
   public addLives(lives: number) {
     this.lives += lives;
@@ -193,6 +203,33 @@ export default class Game extends Container {
     }
   }
 
+  private levelUp() {
+    this.level++;
+    this.pointsSinceLastLevel = 0;
+    if (this.level > this.maxLevels) {
+      // reached last level — stop at max and do nothing
+      this.level = this.maxLevels;
+      return;
+    }
+
+    // Load new level settings
+    this.levelSettings = this.levelsManager.getSettings(this.level);
+    this.spawnItemEveryMs = this.levelSettings.items.spawnItemEveryMs;
+    this.spawnNumberOfItems = this.levelSettings.items.maxAtOnce;
+    this.pointsToLevelUp = this.levelSettings.pointsToLevelUp;
+
+    // Update hero settings
+    if (this.hero) {
+      this.hero.applySettings(this.levelSettings.hero.speed);
+    }
+
+    // Update background
+    if (!this.background) {
+      this.background = new Background(this);
+      this.addChildAt(this.background, 0);
+    }
+    this.background.applySettings(this.levelSettings.background);
+  }
   private moveItems(delta: number) {
     for (const item of this.items) {
       if (!item.isActive) {
@@ -240,6 +277,7 @@ export default class Game extends Container {
   destroy(options?: DestroyOptions): void {
     this.hero?.destroy(options);
     this.moveArrows?.destroy(options);
+    this.background?.destroy(options);
 
     super.destroy(options);
   }
