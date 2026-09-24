@@ -4,8 +4,11 @@ import Hero from "./Hero";
 import { MoveDirection } from "./MoveHandler";
 import MoveArrows from "./MoveArrows";
 import { isTouchDevice } from "../utils/utils";
-import Item from "./Item";
+import Item, { ITEM_TYPES } from "./items/Item";
 import CollisionManager from "./CollisionManager";
+import ItemBig from "./items/ItemBig";
+import ItemFast from "./items/ItemFast";
+import ItemKilling from "./items/ItemKilling";
 
 export default class Game extends Container {
   private main: Main;
@@ -22,7 +25,7 @@ export default class Game extends Container {
   private items: Item[] = [];
   private spawnItemEveryMs = 1500;
   private spawnTimeAccumulatorMs = 0;
-  
+
   private collisionManager: CollisionManager;
 
   constructor(main: Main) {
@@ -61,16 +64,29 @@ export default class Game extends Container {
     this.createItem();
   }
   private createItem() {
-    const item = this.getItem();
+    const item = this.getItem(ITEM_TYPES.normal);
     item.init();
     item.x = item.width + (this.screen.width - item.width * 2) * Math.random();
     item.y = -item.height;
     this.itemsContainer?.addChild(item);
   }
-  private getItem() {
-    let item = this.items.find((foundItem) => !foundItem.isActive);
+  private createItemByType(itemType: ITEM_TYPES) {
+    switch(itemType) {
+      case ITEM_TYPES.big: 
+        return new ItemBig(this);
+      case ITEM_TYPES.fast:
+        return new ItemFast(this);
+      case ITEM_TYPES.killing:
+        return new ItemKilling(this);
+      case ITEM_TYPES.normal:
+      default:
+        return new Item(this);
+    }
+  }
+  private getItem(itemType: ITEM_TYPES) {
+    let item = this.items.find((foundItem) => !foundItem.isActive && foundItem.type === itemType);
     if (!item) {
-      item = new Item(this);
+      item = this.createItemByType(itemType);
       this.items.push(item);
     }
 
@@ -109,10 +125,10 @@ export default class Game extends Container {
     }
   }
 
-  private addPoints(points: number) {
+  public addPoints(points: number) {
     this.points += points;
   }
-  private addLives(lives: number) {
+  public addLives(lives: number) {
     this.lives += lives;
     if (this.lives <= 0) {
       this.gameOver();
@@ -127,14 +143,12 @@ export default class Game extends Container {
 
       item.move(delta);
 
-      if (item.y - item.height/2 > this.screen.height) {
+      if (item.y - item.height / 2 > this.screen.height) {
         item.missed();
-        this.addLives(-1);
       }
 
       if (this.collisionManager.heroVsItemCollsion(this.hero!, item)) {
         item.collect();
-        this.addPoints(5);
       }
     }
   }
