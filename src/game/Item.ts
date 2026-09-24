@@ -47,6 +47,7 @@ export default class Item extends Container {
     this.addChild(this.sprite);
 
     this.isActive = true;
+    this.visible = true;
   }
 
   move(delta: number) {
@@ -56,7 +57,17 @@ export default class Item extends Container {
 
     if (this.y - this.height > this.game.screen.height) {
       this.isActive = false;
+      this.visible = false;
     }
+  }
+
+  missed() {
+    this.isActive = false;
+    this.visible = false;
+  }
+  collect() {
+    this.isActive = false;
+    this.visible = false;
   }
 
   private isPositionOnTheList(pos: { x: number, y: number }): boolean {

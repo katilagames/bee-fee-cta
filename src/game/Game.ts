@@ -5,10 +5,14 @@ import { MoveDirection } from "./MoveHandler";
 import MoveArrows from "./MoveArrows";
 import { isTouchDevice } from "../utils/utils";
 import Item from "./Item";
+import CollisionManager from "./CollisionManager";
 
 export default class Game extends Container {
   private main: Main;
   private hero?: Hero;
+
+  private points: number;
+  private lives: number;
 
   private moveArrows?: MoveArrows;
 
@@ -16,10 +20,16 @@ export default class Game extends Container {
   private items: Item[] = [];
   private spawnItemEveryMs = 1500;
   private spawnTimeAccumulatorMs = 0;
+  
+  private collisionManager: CollisionManager;
 
   constructor(main: Main) {
     super();
     this.main = main;
+    this.collisionManager = new CollisionManager();
+
+    this.lives = 10;
+    this.points = 0;
   }
 
   public init() {
@@ -95,6 +105,15 @@ export default class Game extends Container {
     }
   }
 
+  private addPoints(points: number) {
+    this.points += points;
+    console.log("points", this.points);
+  }
+  private addLives(lives: number) {
+    this.lives += lives;
+    console.log("lives", this.lives);
+  }
+
   private moveItems(delta: number) {
     for (const item of this.items) {
       if (!item.isActive) {
@@ -102,6 +121,16 @@ export default class Game extends Container {
       }
 
       item.move(delta);
+
+      if (item.y - item.height/2 > this.screen.height) {
+        item.missed();
+        this.addLives(-1);
+      }
+
+      if (this.collisionManager.heroVsItemCollsion(this.hero!, item)) {
+        item.collect();
+        this.addPoints(5);
+      }
     }
   }
 
