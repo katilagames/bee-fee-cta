@@ -70,6 +70,10 @@ module.exports = (env, argv) => {
       new CopyWebpackPlugin({
         patterns: [
           {
+            from: path.resolve(__dirname, "src/assets"),
+            to: "assets",
+          },
+          {
             from: path.resolve(__dirname, "src/sounds"),
             to: "sounds",
             noErrorOnMissing: true,
