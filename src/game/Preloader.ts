@@ -12,8 +12,16 @@ export default class Preloader {
     this.manifest = manifest;
   }
 
-  public async load() {
+  public async load(onProgress?: (progress: number) => void) {
     Assets.add(this.manifest);
-    await Assets.load(this.manifest.map((asset) => asset.alias));
+
+    const aliases = this.manifest.map((asset) => asset.alias);
+
+    await Assets.load(
+      aliases,
+      (progress) => {
+        onProgress?.(progress);
+      }
+    );
   }
 }

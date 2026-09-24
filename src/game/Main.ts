@@ -3,15 +3,18 @@ import Game from "./Game";
 import Preloader from "./Preloader";
 import manifest from "../assets/manifest.json";
 import MoveHandler, { MoveDirection } from "./managers/MoveHandler";
+import HtmlManager from "./managers/HtmlManager";
 
 export default class Main {
   private pixiApp: Application;
   private game: Game;
   private preloader: Preloader;
   private moveHandler: MoveHandler;
+  htmlManager: HtmlManager;
 
   constructor() {
     console.log("Main");
+    this.htmlManager = new HtmlManager();
     this.pixiApp = new Application();
     this.game = new Game(this);
     this.preloader = new Preloader(manifest.assets);
@@ -31,6 +34,8 @@ export default class Main {
     return this.moveHandler;
   }
   async init() {
+    this.htmlManager.showPreloader();
+
     await this.pixiApp.init({
       background: "grey",
       resizeTo: window,
@@ -38,8 +43,13 @@ export default class Main {
 
     document.body.append(this.pixiApp.canvas);
 
-    await this.preloader.load();
+    await this.preloader.load((progress) => {
+      this.htmlManager.setLoadingProgress(progress);
+    });
 
+
+    this.htmlManager.hidePreloader();
+    
     this.app.stage.addChild(this.game);
     this.app.stage.eventMode = "static";
 

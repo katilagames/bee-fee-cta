@@ -54,6 +54,10 @@ export default class Game extends Container {
     this.infoManager = new InfoManager(this);
     this.particleManager = new ParticleManager(this);
 
+    this.main.htmlManager.showStartPopup(() => {
+      this.startGame();
+    });
+
     this.lives = this.maxLivesToLose;
     this.points = 0;
     this.level = 1;
@@ -81,10 +85,46 @@ export default class Game extends Container {
     if (this.moveArrows) {
       this.main.getMoveHandler().addScreenArrows(this.moveArrows);
     }
+  }
 
+  public startGame() {
     this.isActive = true;
   }
 
+  public restartGame() {
+    this.level = 1;
+    this.lives = this.maxLivesToLose;
+    this.points = 0;
+    this.pointsSinceLastLevel = 0;
+    
+    this.resetAllItems();
+    this.resetLevel();
+    this.isActive = true;
+  }
+  private resetLevel() {
+    this.levelSettings = this.levelsManager.getSettings(this.level);
+    this.spawnItemEveryMs = this.levelSettings.items.spawnItemEveryMs;
+    this.spawnNumberOfItems = this.levelSettings.items.maxAtOnce;
+    this.pointsToLevelUp = this.levelSettings.pointsToLevelUp;
+
+    if (this.hero) {
+      this.hero.applySettings(this.levelSettings.hero.speed);
+    }
+
+    if (!this.background) {
+      this.background = new Background(this);
+      this.addChildAt(this.background, 0);
+    }
+    this.background.applySettings(this.levelSettings.background);
+    this.infoManager?.showMessage(`Level ${this.level}`);
+  }
+
+  private resetAllItems() {
+    for(const item of this.items) {
+      item.visible = false;
+      item.isActive = false;
+    }
+  }
   public get app() {
     return this.main.app;
   }
@@ -246,29 +286,14 @@ export default class Game extends Container {
     if (this.level > this.maxLevels) {
       // reached last level — stop at max and do nothing
       this.level = this.maxLevels;
+
+      this.main.htmlManager.showThankYouPopup(() => {
+        this.restartGame();
+      }, this.points);
       return;
     }
 
-    // Load new level settings
-    this.levelSettings = this.levelsManager.getSettings(this.level);
-    this.spawnItemEveryMs = this.levelSettings.items.spawnItemEveryMs;
-    this.spawnNumberOfItems = this.levelSettings.items.maxAtOnce;
-    this.pointsToLevelUp = this.levelSettings.pointsToLevelUp;
-
-    // Update hero settings
-    if (this.hero) {
-      this.hero.applySettings(this.levelSettings.hero.speed);
-    }
-
-    // Update background
-    if (!this.background) {
-      this.background = new Background(this);
-      this.addChildAt(this.background, 0);
-    }
-    this.background.applySettings(this.levelSettings.background);
-
-    // Show level up message
-    this.infoManager?.showMessage(`Level ${this.level}`);
+    this.resetLevel();
   }
   private moveItems(delta: number) {
     for (const item of this.items) {
@@ -294,6 +319,10 @@ export default class Game extends Container {
     this.isActive = false;
     this.hero?.setIdle();
     console.log("GAME OVER");
+
+    this.main.htmlManager.showThankYouPopup(() => {
+      this.restartGame();
+    }, this.points);
   }
   handleTick(delta: number) {
     if (!this.isActive) {
@@ -317,6 +346,7 @@ export default class Game extends Container {
     this.moveItems(delta);
     this.particleManager?.update(delta);
   }
+
   destroy(options?: DestroyOptions): void {
     this.hero?.destroy(options);
     this.moveArrows?.destroy(options);
