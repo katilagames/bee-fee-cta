@@ -1,4 +1,4 @@
-import MoveArrows from "./MoveArrows";
+import MoveArrows from "../MoveArrows";
 
 export enum MoveDirection {
   LEFT = "left",
@@ -9,7 +9,6 @@ export enum MoveDirection {
 }
 
 export type OnMoveCallback = (direction: MoveDirection, delta: number) => void;
-
 
 export default class MoveHandler {
   private onMove?: OnMoveCallback;
@@ -59,26 +58,26 @@ export default class MoveHandler {
       left.addEventListener("pointerdown", this.onClickLeft);
       left.addEventListener("pointerup", this.onPressUpLeft);
       left.cursor = "pointer";
-      left.eventMode = 'static';
+      left.eventMode = "static";
     }
 
     if (right) {
       right.addEventListener("pointerdown", this.onClickRight);
       right.addEventListener("pointerup", this.onPressUpRight);
       right.cursor = "pointer";
-      right.eventMode = 'static';
+      right.eventMode = "static";
     }
 
     if (up) {
       up.addEventListener("pointerdown", this.onClickUp);
       up.cursor = "pointer";
-      up.eventMode = 'static';
+      up.eventMode = "static";
     }
 
     if (down) {
       down.addEventListener("pointerdown", this.onClickDown);
       down.cursor = "pointer";
-      down.eventMode = 'static';
+      down.eventMode = "static";
     }
   }
 

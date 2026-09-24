@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
-import Hero from "./Hero";
-import Item from "./items/Item";
+import Hero from "../Hero";
+import Item from "../items/Item";
 
 export default class CollisionManager {
   heroVsItemCollsion(hero: Hero, item: Item) {

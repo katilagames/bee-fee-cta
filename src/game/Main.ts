@@ -2,7 +2,7 @@ import { Application, Ticker } from "pixi.js";
 import Game from "./Game";
 import Preloader from "./Preloader";
 import manifest from "../assets/manifest.json";
-import MoveHandler, { MoveDirection } from "./MoveHandler";
+import MoveHandler, { MoveDirection } from "./managers/MoveHandler";
 
 export default class Main {
   private pixiApp: Application;
@@ -11,7 +11,7 @@ export default class Main {
   private moveHandler: MoveHandler;
 
   constructor() {
-    console.log('Main');
+    console.log("Main");
     this.pixiApp = new Application();
     this.game = new Game(this);
     this.preloader = new Preloader(manifest.assets);
@@ -41,9 +41,9 @@ export default class Main {
     await this.preloader.load();
 
     this.app.stage.addChild(this.game);
-    this.app.stage.eventMode = 'static';
+    this.app.stage.eventMode = "static";
 
-    this.app.stage.addEventListener('pointerupoutside', this.onStageUp);
+    this.app.stage.addEventListener("pointerupoutside", this.onStageUp);
 
     this.game.init();
 

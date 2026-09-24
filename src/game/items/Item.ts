@@ -1,4 +1,4 @@
-import { Assets, Container, Rectangle, Sprite, Texture } from "pixi.js";
+import { Assets, Container, Rectangle, Sprite, Texture, TextureSource } from "pixi.js";
 import Game from "../Game";
 
 export enum ITEM_TYPES {
@@ -21,7 +21,7 @@ export default class Item extends Container {
   protected game: Game;
   protected sprite?: Sprite;
 
-  protected itemTexture;
+  protected itemTexture: TextureSource;
 
   protected speed: number = 200;
   isActive: boolean = false;
@@ -32,6 +32,12 @@ export default class Item extends Container {
     super();
     this.game = game;
     this.itemTexture = Assets.get("food");
+  }
+
+  applySettings(speed?: number) {
+    if (speed) {
+      this.speed = speed;
+    }
   }
 
   init(namedTexture?: string) {

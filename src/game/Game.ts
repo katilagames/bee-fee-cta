@@ -1,14 +1,16 @@
 import { Container, DestroyOptions } from "pixi.js";
 import Main from "./Main";
 import Hero from "./Hero";
-import { MoveDirection } from "./MoveHandler";
+import { MoveDirection } from "./managers/MoveHandler";
 import MoveArrows from "./MoveArrows";
 import { isTouchDevice } from "../utils/utils";
 import Item, { ITEM_TYPES } from "./items/Item";
-import CollisionManager from "./CollisionManager";
+import CollisionManager from "./managers/CollisionManager";
 import ItemBig from "./items/ItemBig";
 import ItemFast from "./items/ItemFast";
 import ItemKilling from "./items/ItemKilling";
+import LevelsManager, { LevelSettings } from "./managers/LevelsManager";
+import Background from "./Background";
 
 export default class Game extends Container {
   private main: Main;
@@ -17,7 +19,9 @@ export default class Game extends Container {
   private isActive = false;
   private points: number;
   private lives: number;
-  private maxLivesToLose = 2;
+  private level: number;
+  private levelSettings?: LevelSettings;
+  private maxLivesToLose = 10;
 
   private moveArrows?: MoveArrows;
 
@@ -25,19 +29,30 @@ export default class Game extends Container {
   private items: Item[] = [];
   private spawnItemEveryMs = 1500;
   private spawnTimeAccumulatorMs = 0;
+  private spawnNumberOfItems = 1;
 
   private collisionManager: CollisionManager;
+  private levelsManager: LevelsManager;
+
+  private background?: Background;
 
   constructor(main: Main) {
     super();
     this.main = main;
     this.collisionManager = new CollisionManager();
+    this.levelsManager = new LevelsManager();
 
     this.lives = this.maxLivesToLose;
     this.points = 0;
+    this.level = 1;
   }
 
   public init() {
+    this.levelSettings = this.levelsManager.getSettings(this.level);
+    this.spawnItemEveryMs = this.levelSettings.items.spawnItemEveryMs;
+    this.spawnNumberOfItems = this.levelSettings.items.maxAtOnce;
+
+    this.createBackground();
     this.createItems();
     this.createHero();
     this.createMoveArrows();
@@ -63,16 +78,34 @@ export default class Game extends Container {
 
     this.createItem();
   }
+
+  private getItemSettings() {
+    let possibleTypes = this.levelSettings?.items.types;
+    if (!possibleTypes) {
+      possibleTypes = ["normal"];
+    }
+    const randomTypeKey = Math.floor(Math.random() * possibleTypes.length);
+    const randomType = possibleTypes[randomTypeKey];
+
+    return {
+      type: randomType,
+      speed: this.levelSettings?.items.speed,
+    };
+  }
   private createItem() {
-    const item = this.getItem(ITEM_TYPES.normal);
+    let { type, speed } = this.getItemSettings();
+
+    const itemType = this.toItemType(type);
+    const item = this.getItem(itemType);
+    item.applySettings(speed);
     item.init();
     item.x = item.width + (this.screen.width - item.width * 2) * Math.random();
-    item.y = -item.height;
+    item.y = -item.height - Math.random() * 2 * item.height;
     this.itemsContainer?.addChild(item);
   }
   private createItemByType(itemType: ITEM_TYPES) {
-    switch(itemType) {
-      case ITEM_TYPES.big: 
+    switch (itemType) {
+      case ITEM_TYPES.big:
         return new ItemBig(this);
       case ITEM_TYPES.fast:
         return new ItemFast(this);
@@ -84,7 +117,9 @@ export default class Game extends Container {
     }
   }
   private getItem(itemType: ITEM_TYPES) {
-    let item = this.items.find((foundItem) => !foundItem.isActive && foundItem.type === itemType);
+    let item = this.items.find(
+      (foundItem) => !foundItem.isActive && foundItem.type === itemType,
+    );
     if (!item) {
       item = this.createItemByType(itemType);
       this.items.push(item);
@@ -94,8 +129,15 @@ export default class Game extends Container {
     return item;
   }
 
+  private toItemType(key?: string): ITEM_TYPES {
+    if (!key) return ITEM_TYPES.normal;
+    const vals = Object.values(ITEM_TYPES) as string[];
+    return vals.includes(key) ? (key as ITEM_TYPES) : ITEM_TYPES.normal;
+  }
+
   private createHero() {
     this.hero = new Hero(this);
+    this.hero.applySettings(this.levelSettings?.hero.speed);
     this.addChild(this.hero);
   }
 
@@ -108,7 +150,23 @@ export default class Game extends Container {
     this.addChild(this.moveArrows);
   }
 
+  private createBackground() {
+    if (!this.levelSettings?.background) {
+      console.log("no levelsettings for bg)");
+      return;
+    }
+    if (!this.background) {
+      this.background = new Background(this);
+    }
+
+    this.background.applySettings(this.levelSettings.background);
+    this.addChild(this.background);
+  }
   public onMove(direction: MoveDirection, delta: number) {
+    if (!this.isActive) {
+      return;
+    }
+
     if (!this.hero) {
       return;
     }
@@ -155,6 +213,7 @@ export default class Game extends Container {
 
   private gameOver() {
     this.isActive = false;
+    this.hero?.setIdle();
     console.log("GAME OVER");
   }
   handleTick(delta: number) {
@@ -166,7 +225,14 @@ export default class Game extends Container {
 
     while (this.spawnTimeAccumulatorMs >= this.spawnItemEveryMs) {
       this.spawnTimeAccumulatorMs -= this.spawnItemEveryMs;
-      this.createItem();
+
+      for (let i = 0; i < this.spawnNumberOfItems; i++) {
+        // make additional items random
+        if (i > 0 && Math.random() < 0.5) {
+          continue;
+        }
+        this.createItem();
+      }
     }
 
     this.moveItems(delta);

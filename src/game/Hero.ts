@@ -36,6 +36,12 @@ export default class Hero extends Container{
     this.createSprite();
     this.setState(this.defaultState);
   }
+  applySettings(speed?: number) {
+    if (speed) {
+      this.speed = speed;
+    }
+  }
+
   createSprite() {
     if (this.heroSprite) {
       return;
@@ -124,7 +130,7 @@ export default class Hero extends Container{
   destroy(options?: DestroyOptions): void {
     this.heroSprite?.destroy();
     this.heroSprite = undefined;
-    
+
     super.destroy(options);
   }
 }

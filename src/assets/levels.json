@@ -1,0 +1,38 @@
+{
+  "level1": {
+    "items": {
+      "speed": 200,
+      "types": ["normal"],
+      "maxAtOnce": 1,
+      "spawnItemEveryMs": 1500
+    },
+    "hero": {
+      "speed": 250
+    },
+    "background": "bg1"
+  },
+  "level2": {
+    "items": {
+      "speed": 280,
+      "types": ["normal", "big", "fast"],
+      "maxAtOnce": 2,
+      "spawnItemEveryMs": 1000
+    },
+    "hero": {
+      "speed": 300
+    },
+    "background": "bg2"
+  },
+  "level3": {
+    "items": {
+      "speed": 350,
+      "types": ["normal", "big", "fast", "killing"],
+      "maxAtOnce": 3,
+      "spawnItemEveryMs": 800
+    },
+    "hero": {
+      "speed": 400
+    },
+    "background": "bg3"
+  }
+}
