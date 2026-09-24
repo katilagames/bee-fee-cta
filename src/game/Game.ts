@@ -11,8 +11,10 @@ export default class Game extends Container {
   private main: Main;
   private hero?: Hero;
 
+  private isActive = false;
   private points: number;
   private lives: number;
+  private maxLivesToLose = 2;
 
   private moveArrows?: MoveArrows;
 
@@ -28,7 +30,7 @@ export default class Game extends Container {
     this.main = main;
     this.collisionManager = new CollisionManager();
 
-    this.lives = 10;
+    this.lives = this.maxLivesToLose;
     this.points = 0;
   }
 
@@ -40,6 +42,8 @@ export default class Game extends Container {
     if (this.moveArrows) {
       this.main.getMoveHandler().addScreenArrows(this.moveArrows);
     }
+
+    this.isActive = true;
   }
 
   public get app() {
@@ -107,11 +111,12 @@ export default class Game extends Container {
 
   private addPoints(points: number) {
     this.points += points;
-    console.log("points", this.points);
   }
   private addLives(lives: number) {
     this.lives += lives;
-    console.log("lives", this.lives);
+    if (this.lives <= 0) {
+      this.gameOver();
+    }
   }
 
   private moveItems(delta: number) {
@@ -134,7 +139,15 @@ export default class Game extends Container {
     }
   }
 
+  private gameOver() {
+    this.isActive = false;
+    console.log("GAME OVER");
+  }
   handleTick(delta: number) {
+    if (!this.isActive) {
+      return;
+    }
+
     this.spawnTimeAccumulatorMs += delta;
 
     while (this.spawnTimeAccumulatorMs >= this.spawnItemEveryMs) {

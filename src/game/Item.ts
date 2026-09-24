@@ -16,7 +16,7 @@ export default class Item extends Container {
 
   private itemTexture;
 
-  private speed: number = 100;
+  private speed: number = 200;
   isActive: boolean = false;
 
   constructor(game: Game) {
