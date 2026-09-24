@@ -1,8 +1,10 @@
 import { AnimatedSprite, Assets, Container } from "pixi.js";
 import Main from "./Main";
+import Hero from "./Hero";
 
 export default class Game extends Container {
   private main: Main;
+  private hero?: Hero;
 
   constructor(main: Main) {
     super();
@@ -18,16 +20,7 @@ export default class Game extends Container {
   }
 
   private async createHero() {
-    const heroSS = Assets.get("hero_spritesheet");
-    if (!heroSS) {
-      console.error("Missing hero sprite sheet");
-      return;
-    }
-    
-    const heroAnimation = new AnimatedSprite(heroSS.animations["char_idle"]);
-    heroAnimation.animationSpeed = 0.1;
-    heroAnimation.play();
-
-    this.addChild(heroAnimation);
+    this.hero = new Hero(this);
+    this.addChild(this.hero);
   }
 }
