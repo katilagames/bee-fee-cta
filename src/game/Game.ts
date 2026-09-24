@@ -1,4 +1,4 @@
-import { Container, DestroyOptions, Text } from "pixi.js";
+import { Container, DestroyOptions } from "pixi.js";
 import Main from "./Main";
 import Hero from "./Hero";
 import { MoveDirection } from "./managers/MoveHandler";
@@ -12,6 +12,7 @@ import ItemKilling from "./items/ItemKilling";
 import LevelsManager, { LevelSettings } from "./managers/LevelsManager";
 import Background from "./Background";
 import InfoManager from "./managers/InfoManager";
+import Hud from "./Hud";
 
 export default class Game extends Container {
   private main: Main;
@@ -40,6 +41,7 @@ export default class Game extends Container {
 
   private background?: Background;
   private infoManager: InfoManager;
+  private hud?: Hud;
 
   constructor(main: Main) {
     super();
@@ -63,8 +65,8 @@ export default class Game extends Container {
     this.createBackground();
     this.createItems();
     this.createHero();
+    this.createHud();
     this.createMoveArrows();
-
     this.addChild(this.infoManager);
     this.infoManager?.showMessage(`Level ${this.level}`);
 
@@ -83,6 +85,12 @@ export default class Game extends Container {
     return this.app.renderer.screen;
   }
 
+  private createHud() {
+    this.hud = new Hud(this);
+    this.addChild(this.hud);
+    this.hud.setPoints(this.points);
+    this.hud.setLives(this.lives);
+  }
   private createItems() {
     this.itemsContainer = new Container();
     this.addChild(this.itemsContainer);
@@ -198,12 +206,14 @@ export default class Game extends Container {
     this.points += points;
     console.log("points", this.points);
     this.pointsSinceLastLevel += points;
+    this.hud?.setPoints(this.points);
     if (this.pointsSinceLastLevel > this.pointsToLevelUp) {
       this.levelUp();
     }
   }
   public addLives(lives: number) {
     this.lives += lives;
+    this.hud?.setLives(this.lives);
     if (this.lives <= 0) {
       this.gameOver();
     }
@@ -288,6 +298,7 @@ export default class Game extends Container {
     this.moveArrows?.destroy(options);
     this.background?.destroy(options);
     this.infoManager?.destroy(options);
+    this.hud?.destroy(options);
 
     super.destroy(options);
   }
