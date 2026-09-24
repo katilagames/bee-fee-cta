@@ -7,6 +7,10 @@
     { "alias": "levels_config", "src": "./assets/levels.json" },
     { "alias": "bg1", "src": "./assets/bg/bg1.jpg" },
     { "alias": "bg2", "src": "./assets/bg/bg2.jpg" },
-    { "alias": "bg3", "src": "./assets/bg/bg3.jpg" }
+    { "alias": "bg3", "src": "./assets/bg/bg3.jpg" },
+    { "alias": "snd_click", "src": "assets/sounds/click.{mp3}" },
+    { "alias": "snd_collect", "src": "assets/sounds/collect.{mp3}" },
+    { "alias": "snd_itemFell", "src": "assets/sounds/itemFell.{mp3}" },
+    { "alias": "snd_lostLife", "src": "assets/sounds/lostLife.{mp3}" }
   ]
 }

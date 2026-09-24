@@ -14,6 +14,7 @@ import Background from "./Background";
 import InfoManager from "./managers/InfoManager";
 import Hud from "./Hud";
 import ParticleManager from "./managers/ParticleManager";
+import { sound } from "@pixi/sound";
 
 export default class Game extends Container {
   private main: Main;
@@ -214,7 +215,11 @@ export default class Game extends Container {
 
   public addPoints(points: number) {
     this.points += points;
-    console.log("points", this.points);
+
+    if (points > 0) {
+      sound.play('snd_collect');
+    }
+
     this.pointsSinceLastLevel += points;
     this.hud?.setPoints(this.points);
     if (this.pointsSinceLastLevel > this.pointsToLevelUp) {
@@ -223,6 +228,10 @@ export default class Game extends Container {
   }
   public addLives(lives: number) {
     this.lives += lives;
+
+    if (lives < 0) {
+      sound.play("snd_lostLife");
+    }
     this.hud?.setLives(this.lives);
     if (this.lives <= 0) {
       this.gameOver();
@@ -232,6 +241,8 @@ export default class Game extends Container {
   private levelUp() {
     this.level++;
     this.pointsSinceLastLevel = 0;
+
+    sound.play('snd_itemFell');
     if (this.level > this.maxLevels) {
       // reached last level — stop at max and do nothing
       this.level = this.maxLevels;
@@ -269,6 +280,7 @@ export default class Game extends Container {
 
       if (item.y - item.height / 2 > this.screen.height) {
         item.missed();
+        
       }
 
       if (this.collisionManager.heroVsItemCollsion(this.hero!, item)) {
