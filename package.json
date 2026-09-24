@@ -19,6 +19,7 @@
   "homepage": "https://github.com/katilagames/bee-fee-cta#readme",
   "description": "",
   "dependencies": {
+    "@barvynkoa/particle-emitter": "^0.0.1",
     "pixi.js": "^8.21.0"
   },
   "devDependencies": {

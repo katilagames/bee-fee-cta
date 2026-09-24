@@ -13,6 +13,7 @@ import LevelsManager, { LevelSettings } from "./managers/LevelsManager";
 import Background from "./Background";
 import InfoManager from "./managers/InfoManager";
 import Hud from "./Hud";
+import ParticleManager from "./managers/ParticleManager";
 
 export default class Game extends Container {
   private main: Main;
@@ -38,6 +39,7 @@ export default class Game extends Container {
 
   private collisionManager: CollisionManager;
   private levelsManager: LevelsManager;
+  private particleManager?: ParticleManager;
 
   private background?: Background;
   private infoManager: InfoManager;
@@ -49,6 +51,7 @@ export default class Game extends Container {
     this.collisionManager = new CollisionManager();
     this.levelsManager = new LevelsManager();
     this.infoManager = new InfoManager(this);
+    this.particleManager = new ParticleManager(this);
 
     this.lives = this.maxLivesToLose;
     this.points = 0;
@@ -70,6 +73,10 @@ export default class Game extends Container {
     this.addChild(this.infoManager);
     this.infoManager?.showMessage(`Level ${this.level}`);
 
+    if (this.particleManager) {
+      this.addChild(this.particleManager.particleLayer);
+    }
+
     if (this.moveArrows) {
       this.main.getMoveHandler().addScreenArrows(this.moveArrows);
     }
@@ -85,6 +92,9 @@ export default class Game extends Container {
     return this.app.renderer.screen;
   }
 
+  public onCollectEffect(x: number, y: number) {
+    this.particleManager?.onCollectGoodItem(x, y);
+  }
   private createHud() {
     this.hud = new Hud(this);
     this.addChild(this.hud);
@@ -263,6 +273,7 @@ export default class Game extends Container {
 
       if (this.collisionManager.heroVsItemCollsion(this.hero!, item)) {
         item.collect();
+        this.onCollectEffect(item.x, item.y);
       }
     }
   }
@@ -292,6 +303,7 @@ export default class Game extends Container {
     }
 
     this.moveItems(delta);
+    this.particleManager?.update(delta);
   }
   destroy(options?: DestroyOptions): void {
     this.hero?.destroy(options);
