@@ -23,7 +23,5 @@ export default class ItemKilling extends Item {
 
   missed(): void {
     this.deactivate();
-
-    this.game.addPoints(100);
   }
 }

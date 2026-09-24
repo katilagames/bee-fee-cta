@@ -16,6 +16,6 @@ export default class ItemFast extends Item {
 
   collect(): void {
     this.deactivate();
-    this.game.addPoints(100);
+    this.game.addPoints(10);
   }
 }

@@ -16,6 +16,6 @@ export default class ItemBig extends Item {
 
   collect(): void {
     this.deactivate();
-    this.game.addPoints(50);
+    this.game.addPoints(15);
   }
 }

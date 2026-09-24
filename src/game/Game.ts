@@ -1,4 +1,4 @@
-import { Container, DestroyOptions } from "pixi.js";
+import { Container, DestroyOptions, Text } from "pixi.js";
 import Main from "./Main";
 import Hero from "./Hero";
 import { MoveDirection } from "./managers/MoveHandler";
@@ -11,6 +11,7 @@ import ItemFast from "./items/ItemFast";
 import ItemKilling from "./items/ItemKilling";
 import LevelsManager, { LevelSettings } from "./managers/LevelsManager";
 import Background from "./Background";
+import InfoManager from "./managers/InfoManager";
 
 export default class Game extends Container {
   private main: Main;
@@ -38,12 +39,14 @@ export default class Game extends Container {
   private levelsManager: LevelsManager;
 
   private background?: Background;
+  private infoManager: InfoManager;
 
   constructor(main: Main) {
     super();
     this.main = main;
     this.collisionManager = new CollisionManager();
     this.levelsManager = new LevelsManager();
+    this.infoManager = new InfoManager(this);
 
     this.lives = this.maxLivesToLose;
     this.points = 0;
@@ -61,6 +64,9 @@ export default class Game extends Container {
     this.createItems();
     this.createHero();
     this.createMoveArrows();
+
+    this.addChild(this.infoManager);
+    this.infoManager?.showMessage(`Level ${this.level}`);
 
     if (this.moveArrows) {
       this.main.getMoveHandler().addScreenArrows(this.moveArrows);
@@ -229,6 +235,9 @@ export default class Game extends Container {
       this.addChildAt(this.background, 0);
     }
     this.background.applySettings(this.levelSettings.background);
+
+    // Show level up message
+    this.infoManager?.showMessage(`Level ${this.level}`);
   }
   private moveItems(delta: number) {
     for (const item of this.items) {
@@ -278,6 +287,7 @@ export default class Game extends Container {
     this.hero?.destroy(options);
     this.moveArrows?.destroy(options);
     this.background?.destroy(options);
+    this.infoManager?.destroy(options);
 
     super.destroy(options);
   }
